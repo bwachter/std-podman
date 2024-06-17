@@ -1,0 +1,40 @@
+#!/bin/bash
+# the complete unprivileged clusterfuck is described here:
+# https://github.com/containers/podman/blob/main/docs/tutorials/rootless_tutorial.md#giving-access-to-additional-groups
+VIDEO_GID_HOST=`getent group video|awk -F ":" '{print $3}'`
+RENDER_GID_HOST=`getent group render|awk -F ":" '{print $3}'`
+VIDEO_GID_CONTAINER=44
+RENDER_GID_CONTAINER=109
+
+echo "Mapping render group from $RENDER_GID_HOST to $RENDER_GID_CONTAINER"
+echo "Mapping video group from $VIDEO_GID_HOST to $VIDEO_GID_CONTAINER"
+
+if [ -n "$1" ]; then
+    EXTRA="-it"
+fi
+
+mkdir -p ~/stable-diffusion/models
+mkdir -p ~/stable-diffusion/lora
+mkdir -p ~/stable-diffusion/controlnet
+mkdir -p ~/stable-diffusion/codeformer
+mkdir -p ~/stable-diffusion/output
+mkdir -p ~/stable-diffusion/extensions
+
+# this expects the json files to be present - start without mounting
+# them in, and pull them, if necessary
+podman run --rm \
+       -p 7860:7860 \
+       --group-add keep-groups \
+       --gidmap "+g1000:@1000" --gidmap "+1000:@1000" \
+       --gidmap "+g$VIDEO_GID_CONTAINER:@$VIDEO_GID_HOST" \
+       --gidmap "+g$RENDER_GID_CONTAINER:@$RENDER_GID_HOST" \
+       -v ~/stable-diffusion/models:/std/stable-diffusion-webui/models/Stable-diffusion \
+       -v ~/stable-diffusion/lora:/std/stable-diffusion-webui/models/Lora \
+       -v ~/stable-diffusion/controlnet:/std/stable-diffusion-webui/extensions/sd-webui-controlnet/models \
+       -v ~/stable-diffusion/codeformer:/std/stable-diffusion-webui/models/Codeformer \
+       -v ~/stable-diffusion/output:/std/stable-diffusion-webui/outputs \
+       -v ~/stable-diffusion/extensions:/std/stable-diffusion-webui/extensions \
+       -v ~/stable-diffusion/config/config.json:/std/stable-diffusion-webui/config.json \
+       -v ~/stable-diffusion/config/ui-config.json:/std/stable-diffusion-webui/ui-config.json \
+       --device /dev/dri --device /dev/kfd $EXTRA \
+       wachter.fi/std-podman:latest ${1:-}

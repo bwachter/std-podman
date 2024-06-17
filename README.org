@@ -1,0 +1,42 @@
+*                                                                     :TOC_4:
+  - [[#overview][Overview]]
+  - [[#setup][Setup]]
+  - [[#debugging][Debugging]]
+
+** Overview
+Running the [[https://github.com/AUTOMATIC1111/stable-diffusion-webui][AUTOMATIC1111]] web UI for stable diffusion/AMD in a podman container.
+
+** Setup
+Make sure the gids for render and video in the container are correct, and adjust the run script if they are not.
+
+Copy the config.json and ui-config.json from stable diffusion into =~/stable-diffusion/config/=.
+
+Clone any extensions into =~/stable-diffusion/extensions/=
+
+** Debugging
+If ROCm is installed locally: Check with pytorch-test.py if everything works.
+
+Otherwise start a shell in the container, and run it in there:
+
+#+BEGIN_SRC bash
+$ ./run bash
+Mapping render group from 469 to 109
+Mapping video group from 482 to 44
+root@bea6aaf0d842:/var/lib/jenkins# su - user
+$ bash
+user@bea6aaf0d842:~$ . /std/stable-diffusion-webui/venv/bin/activate
+(venv) user@bea6aaf0d842:~$ python /pytorch-test.py
+
+
+Checking ROCM support...
+GOOD: ROCM devices found:  2
+Checking PyTorch...
+GOOD: PyTorch is working fine.
+Checking user groups...
+GOOD: The user user is in RENDER and VIDEO groups.
+GOOD: PyTorch ROCM support found.
+Testing PyTorch ROCM support...
+Everything fine! You can run PyTorch code inside of:
+--->  AMD Ryzen Threadripper 3970X 32-Core Processor
+--->  gfx1030
+#+END_SRC

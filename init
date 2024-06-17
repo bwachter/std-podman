@@ -1,0 +1,21 @@
+#!/bin/bash
+
+if [ "`id -u`" -eq 0 ]; then
+  echo "Startup with wrong UID"
+  exec su - user -c $0
+fi
+
+echo "Running as `id -u`"
+getent group video
+getent group render
+ls -l /dev/dri/
+
+cd /std/stable-diffusion-webui
+source venv/bin/activate
+export PYTORCH_HIP_ALLOC_CONF=garbage_collection_threshold:0.9,max_split_size_mb:512
+export SAFETENSORS_FAST_GPU=1
+export PATH=$PATH:/usr/sbin
+export REQS_FILE='requirements.txt'
+
+
+exec python3.10 launch.py --listen --gradio-auth std:chlamydia --opt-split-attention --no-half-vae --disable-nan-check --api
