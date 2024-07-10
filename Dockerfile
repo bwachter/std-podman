@@ -1,4 +1,4 @@
-From pytorch
+From docker.io/rocm/pytorch
 
 COPY init /init
 COPY pytorch-test.py /pytorch-test.py
