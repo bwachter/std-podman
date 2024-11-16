@@ -4,6 +4,9 @@
   - [[#debugging][Debugging]]
 
 ** Overview
+
+**NOTE:** I recommend switching to [[https://github.com/comfyanonymous/ComfyUI][ComfyUI]], optionally with this [[https://github.com/Acly/krita-ai-diffusion][Krita plugin]]. Unlike Automatic1111 ComfyUI installs easily with somewhat recent python versions, which allows installing in a venv with the default distribution python. No changes will be made to this repository.
+
 Running the [[https://github.com/AUTOMATIC1111/stable-diffusion-webui][AUTOMATIC1111]] web UI for stable diffusion/AMD in a podman container.
 
 ** Setup
